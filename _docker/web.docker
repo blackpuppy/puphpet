@@ -1,0 +1,4 @@
+FROM nginx:stable-alpine
+
+ADD ./_docker/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+WORKDIR /var/www/html

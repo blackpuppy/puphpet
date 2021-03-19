@@ -1,0 +1,32 @@
+FROM php:7-fpm-alpine
+
+RUN apk update \
+    && apk add --update --no-cache \
+        curl \
+        git \
+        freetype-dev \
+        icu-dev \
+        libjpeg-turbo-dev \
+        # libmcrypt-dev \
+        libpng-dev \
+        ${PHPIZE_DEPS} \
+    && mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    # && docker-php-ext-configure mbstring --enable-mbstring \
+    && docker-php-ext-configure pdo_mysql --with-pdo-mysql \
+    && docker-php-ext-install -j$(nproc) \
+        intl \
+        # mbstring \
+        # mcrypt \
+        pdo_mysql \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd \
+    && docker-php-ext-install opcache \
+    && docker-php-ext-enable opcache \
+    && rm -rf /tmp/pear \
+    && rm -rf /var/cache/apk/*
+
+COPY ./_docker/install-composer.sh /install-composer.sh
+RUN chmod +x /install-composer.sh \
+    && /install-composer.sh
+
+WORKDIR /var/www/html
