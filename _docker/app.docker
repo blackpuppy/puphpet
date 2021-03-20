@@ -2,6 +2,7 @@ FROM php:7-fpm-alpine
 
 RUN apk update \
     && apk add --update --no-cache \
+        acl \
         curl \
         git \
         freetype-dev \
@@ -29,5 +30,9 @@ RUN apk update \
 COPY ./_docker/install-composer.sh /install-composer.sh
 RUN chmod +x /install-composer.sh \
     && /install-composer.sh
+
+RUN HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) \
+    && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX app/cache app/logs \
+    && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX app/cache app/logs
 
 WORKDIR /var/www/html
