@@ -9,6 +9,7 @@ RUN apk update \
         libjpeg-turbo-dev \
         # libmcrypt-dev \
         libpng-dev \
+        zip \
         ${PHPIZE_DEPS} \
     && mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     # && docker-php-ext-configure mbstring --enable-mbstring \
