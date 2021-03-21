@@ -2,7 +2,6 @@ FROM php:7-fpm-alpine
 
 RUN apk update \
     && apk add --update --no-cache \
-        acl \
         curl \
         git \
         freetype-dev \
@@ -10,6 +9,7 @@ RUN apk update \
         libjpeg-turbo-dev \
         # libmcrypt-dev \
         libpng-dev \
+        shadow \
         zip \
         ${PHPIZE_DEPS} \
     && mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
@@ -31,8 +31,6 @@ COPY ./_docker/install-composer.sh /install-composer.sh
 RUN chmod +x /install-composer.sh \
     && /install-composer.sh
 
-RUN HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) \
-    && setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX /var/www/html \
-    && setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX /var/www/html
+RUN usermod -u 1000 www-data
 
 WORKDIR /var/www/html
